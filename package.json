@@ -1,14 +1,17 @@
 {
-  "name": "esimcard_api_local",
+  "name": "esimcard-project",
   "version": "1.0.0",
-  "type": "module",
+  "description": "Express server for esimcard usage checking",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "node-fetch": "^3.3.2"
-  }
+    "node-fetch": "^3.3.1",
+    "cors": "^2.8.5"
+  },
+  "author": "",
+  "license": "ISC"
 }

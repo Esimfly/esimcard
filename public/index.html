@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Check Data Usage</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -12,19 +12,16 @@
       background-color: #f4f4f4;
       text-align: center;
     }
-
     .logo-container {
       margin-bottom: 20px;
     }
-
     .logo-container img {
       width: 160px;
       height: auto;
       border-radius: 10px;
       object-fit: contain;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-
     .container {
       background: #fff;
       padding: 20px;
@@ -33,7 +30,6 @@
       margin: auto;
       box-shadow: 0 0 10px rgba(3, 143, 236, 0.3);
     }
-
     input {
       width: 100%;
       padding: 12px;
@@ -42,7 +38,6 @@
       border-radius: 8px;
       border: 1px solid #ccc;
     }
-
     button {
       padding: 10px 20px;
       font-size: 16px;
@@ -52,11 +47,25 @@
       border-radius: 8px;
       cursor: pointer;
     }
-
     #result {
       margin-top: 25px;
     }
-
+    .whatsapp-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background-color: #25D366;
+      color: white;
+      border-radius: 30px;
+      font-weight: bold;
+      text-decoration: none;
+      margin-bottom: 20px;
+    }
+    .whatsapp-inline img {
+      width: 20px;
+      height: 20px;
+    }
     .progress-bar {
       height: 20px;
       border-radius: 10px;
@@ -64,40 +73,21 @@
       overflow: hidden;
       margin: 10px 0;
     }
-
     .progress-bar-fill {
       height: 100%;
       transition: width 0.5s;
     }
-
-    .whatsapp-inline {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 18px;
-      background-color: #25d366;
-      color: white;
-      border-radius: 30px;
+    .countdown {
       font-weight: bold;
-      text-decoration: none;
-      margin-bottom: 20px;
+      margin-top: 10px;
     }
-
-    .whatsapp-inline img {
-      width: 20px;
-      height: 20px;
-    }
-
     @media (max-width: 600px) {
       .container {
         padding: 15px;
       }
-
-      input,
-      button {
+      input, button {
         font-size: 15px;
       }
-
       .logo-container img {
         width: 120px;
       }
@@ -106,39 +96,46 @@
 </head>
 <body>
   <div class="logo-container">
-    <img src="https://files.catbox.moe/s83b16.png" alt="Company Logo" />
+    <img src="https://files.catbox.moe/s83b16.png" alt="Company Logo">
   </div>
-
   <a href="https://wa.me/97336636509" target="_blank" class="whatsapp-inline">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" />
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
     WhatsApp
   </a>
-
-  <a
-    href="https://www.instagram.com/esim_fly?igsh=YXJlem8wcWE3YWtu"
-    target="_blank"
-    class="whatsapp-inline"
-    style="background-color: #e1306c"
-  >
-    <img
-      src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"
-      alt="Instagram"
-    />
+  <a href="https://www.instagram.com/esim_fly?igsh=YXJlem8wcWE3YWtu" target="_blank" class="whatsapp-inline" style="background-color: #E1306C;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram">
     Instagram
   </a>
-
   <div class="container">
     <h2>Check Data Usage</h2>
-    <input type="text" id="iccid" placeholder="89.....Enter ICCID...." />
+    <input type="text" id="iccid" placeholder="89.....Enter ICCID....">
     <button onclick="checkData()">Check</button>
     <div id="result"></div>
   </div>
-
   <script>
     function getProgressColor(percentage) {
       const red = Math.min(255, Math.floor((percentage / 100) * 255));
       const green = Math.max(0, 255 - red);
       return `rgb(${red}, ${green}, 0)`;
+    }
+
+    function startCountdown(endTime, element) {
+      function update() {
+        const now = new Date().getTime();
+        const distance = endTime - now;
+        if (distance < 0) {
+          element.textContent = "Expired";
+          clearInterval(interval);
+          return;
+        }
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        element.textContent = `Time Left: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+      }
+      update();
+      const interval = setInterval(update, 1000);
     }
 
     async function checkData() {
@@ -152,63 +149,34 @@
       }
 
       try {
-        const response = await fetch(
-          `http://localhost:5500/api/usage?iccid=${encodeURIComponent(iccid)}`
-        );
+        const response = await fetch(`/api/usage?iccid=${iccid}`);
+        const data = await response.json();
 
-        if (!response.ok) throw new Error("Failed to fetch data");
-
-        const json = await response.json();
-
-        if (json.error) {
-          resultDiv.innerHTML = `<p style="color:red;">${json.error}</p>`;
+        if (!data.status) {
+          resultDiv.innerHTML = `<p style="color:red;">${data.message || "No data found for this ICCID."}</p>`;
           return;
         }
 
-        const d = json.data || json;
-
-        if (!d.initial_data_quantity || !d.rem_data_quantity) {
-          resultDiv.innerHTML =
-            '<p style="color:red;">No valid usage data found.</p>';
-          return;
-        }
-
-        const used = d.initial_data_quantity - d.rem_data_quantity;
-        const percentage = ((used / d.initial_data_quantity) * 100).toFixed(1);
-        const barColor = getProgressColor(percentage);
+        const initial = data.data.initial_data_quantity;
+        const remaining = data.data.rem_data_quantity;
+        const used = initial - remaining;
+        const usedPercentage = ((used / initial) * 100).toFixed(1);
+        const color = getProgressColor(usedPercentage);
 
         resultDiv.innerHTML = `
-          <div
-            style="
-              background: #f9f9f9;
-              padding: 20px;
-              border-radius: 10px;
-              border: 1px solid #ddd;
-              margin-top: 20px;
-            "
-          >
+          <div style="background:#f9f9f9; padding:20px; border-radius:10px; border:1px solid #ddd; margin-top: 20px;">
             <p><strong>ICCID:</strong> ${iccid}</p>
-            <p><strong>Initial Data:</strong> ${d.initial_data_quantity} ${
-          d.initial_data_unit || ""
-        }</p>
-            <p><strong>Remaining Data:</strong> ${d.rem_data_quantity} ${
-          d.rem_data_unit || ""
-        }</p>
-            <p><strong>Used Data:</strong> ${used.toFixed(2)} ${
-          d.initial_data_unit || ""
-        }</p>
+            <p><strong>Total Data:</strong> ${initial} GB</p>
+            <p><strong>Remaining:</strong> ${remaining} GB</p>
+            <p><strong>Used:</strong> ${used} GB</p>
             <div class="progress-bar">
-              <div
-                class="progress-bar-fill"
-                style="width: ${percentage}%; background-color: ${barColor};"
-              ></div>
+              <div class="progress-bar-fill" style="width:${usedPercentage}%; background-color:${color};"></div>
             </div>
-            <p><strong>Used:</strong> ${percentage}%</p>
           </div>
         `;
       } catch (err) {
         console.error(err);
-        resultDiv.innerHTML = '<p style="color:red;">Error fetching data</p>';
+        resultDiv.innerHTML = '<p style="color:red;">Error fetching data. Please try again later.</p>';
       }
     }
   </script>

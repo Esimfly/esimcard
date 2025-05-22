@@ -7,32 +7,29 @@ const PORT = process.env.PORT || 5500;
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static('public'));
 
 app.get("/api/usage", async (req, res) => {
   try {
     const iccid = req.query.iccid;
     if (!iccid) return res.status(400).json({ error: "ICCID مطلوب" });
 
-    // الخطوة 1: تسجيل الدخول
     const loginResponse = await fetch("https://esimcard.com/api/developer/reseller/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email: "dream-bh@hotmail.com",
-        password: "37774188??Abc"
+        password: "37774188??Abc"  // عدل هنا كلمة السر
       })
     });
 
     const loginData = await loginResponse.json();
-    console.log("Login Response:", loginData);
-
     if (!loginData.access_token) {
       return res.status(401).json({ error: "فشل تسجيل الدخول", loginData });
     }
 
     const token = loginData.access_token;
 
-    // الخطوة 2: جلب بيانات الاستخدام
     const usageResponse = await fetch(`https://esimcard.com/api/developer/reseller/my-sim/${iccid}/usage`, {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -41,6 +38,12 @@ app.get("/api/usage", async (req, res) => {
     });
 
     const usageData = await usageResponse.json();
+
+    // إذا كانت الرسالة "No data found" أو البيانات غير موجودة
+    if (usageData.message && usageData.message.toLowerCase().includes("no data found")) {
+      return res.json({ status: false, message: "لا توجد بيانات لهذا الـ ICCID." });
+    }
+
     res.json(usageData);
 
   } catch (error) {
